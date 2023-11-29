@@ -9,7 +9,6 @@
 </head>
 <body>
   <div id="app" class="container">
-    
     <div>
       <h1>Pousadaria</h1>      
       <div class="d-flex">
@@ -23,7 +22,7 @@
         <div class="search-message text-center alert alert-warning" v-if="guesthouses.length <= 0 && !errorMessage">
           Nenhuma pousada encontrada!
         </div>
-        <div class="d-flex flex-row justify-content-around mt-5" >
+        <div class="d-flex flex-row justify-content-around mt-5">
           <div class="card text-center" style="width: 18rem;">
             <ul class="list-group list-group-flush">
               <li v-for="guesthouse in guesthouses" class="list-group-item" v-on:click="getDetails(guesthouse.id)">
@@ -65,6 +64,7 @@
               </ul>
             </div>
           </section>
+
           <section v-if="showAvailabilityForm">
             <div v-if="available === true" class="alert alert-success">
               <p>Período disponível!</p>
@@ -74,20 +74,17 @@
               <p>{{ errorMessage }}</p>
             </div>
             <div v-else-if="errors.length > 0" class="alert alert-warning">
-              <dl>
-                <dd v-for="error in errors" :key="error">
+              <ul>
+                <li v-for="error in errors" :key="error">
                   <p>{{ error }}</p>
-                </dd>
-              </dl>
+                </li>
+              </ul>
             </div>
           </section>
-          
-          
-
+        </div>
+      </div>
     </main>
   </div>
-
- 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
   <script src="main.js"></script>
 </body>
