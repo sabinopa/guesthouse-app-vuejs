@@ -3,22 +3,19 @@ const app = Vue.createApp({
     return {
       searchText: '',
       errorMessage: '',
-      id: '',
-      brandName: '',
-      description: '',
-      phoneNumber: '',
-      email: '',
-      petFriendly: '',
-      usagePolicy: '',
-      address: '',
-      neighbourhood: '',
-      city: '',
-      state: '',
       guesthouses: [],
       guesthouse: {},
       rooms: [],
-      showRooms: false,
+      showGuesthouseRoomDetails: false,
       showGuesthouseDetails: false,
+      showAvailabilityForm: false,
+      roomId: '',
+      startDate: '',
+      endDate: '',
+      numberGuests: '',
+      bookingPrice: '',
+      available: false,
+      errors: []
     };
   },
 
@@ -42,7 +39,7 @@ const app = Vue.createApp({
 
   methods: {
     async getGuesthouses() {
-      this.showDetails();
+      this.hideDetails();
       this.errorMessage = '';
 
       try {
@@ -57,12 +54,6 @@ const app = Vue.createApp({
 
         let response = await fetch(url);
 
-        if (!response.ok) {
-          let errorData = await response.json();
-          this.errorMessage = errorData.message || 'Erro desconhecido'; // Use a mensagem de erro do servidor, se disponível
-          return; // Encerra a execução do método neste ponto
-        }
-
         let data = await response.json();
         this.guesthouses = [];
 
@@ -74,13 +65,13 @@ const app = Vue.createApp({
           this.guesthouses.push(guesthouse);
         });
         document.querySelector('main').hidden = false;
-      } catch (e) {
-        this.errorMessage = e.message || 'Erro de conexão ou resposta inválida'; // Captura erros de rede ou de parsing do JSON
+      } catch (error) {
+        this.errorMessage = error.message || 'Erro de conexão ou resposta inválida'; 
       }
     },
 
     async getDetails(id) {
-      this.showDetails();
+      this.hideDetails();
       this.rooms = [];
       this.errorMessage = '';
 
@@ -88,12 +79,6 @@ const app = Vue.createApp({
         let response = await fetch(
           'http://localhost:3000/api/v1/guesthouses/' + id
         );
-
-        if (!response.ok) {
-          let errorData = await response.json();
-          this.errorMessage = errorData.message || 'Erro desconhecido'; // Use a mensagem de erro do servidor, se disponível
-          return; // Encerra a execução do método neste ponto
-        }
 
         let { guesthouse } = await response.json();
 
@@ -109,20 +94,20 @@ const app = Vue.createApp({
         this.neighbourhood = guesthouse.neighbourhood;
         this.city = guesthouse.city;
         this.state = guesthouse.state;
-
+        this.rooms = guesthouse.available_rooms;
+        
         this.id = id;
 
         this.guesthouse = guesthouse;
 
         this.showGuesthouseDetails = true;
-        this.showRooms = true;
-      } catch (e) {
+      } catch (error) {
         this.errorMessage = 'Dados indisponíveis';
       }
     },
-
+    
     RoomsList(list) {
-       
+      this.hideDetails();
       this.rooms = [];
 
       list.forEach((item) => {
@@ -145,15 +130,42 @@ const app = Vue.createApp({
 
         this.rooms.push(room);
       });
-
-      this.showRooms = true;
+      this.showGuesthouseDetails = true;
+      this.showGuesthouseRoomDetails = true;
     },
-
-    showDetails() {
+    
+    hideDetails() {
       this.showGuesthouseDetails = false;
-      this.showRooms = false;
+      this.showGuesthouseRoomDetails = false;
     },
-  },
-});
+    
+    async availability(roomId) {
+      this.errorMessage = '';
+      this.showAvailabilityForm = true;
+    
+      let response = await fetch(`http://localhost:3000/api/v1/guesthouses/${this.guesthouseId}/rooms/${roomId}/availability/?` +
+                                `start_date=${this.startDate}&end_date=${this.endDate}&number_guests=${this.numberGuests}`);
+    
+      let data = await response.json();
+      this.available = data.available;
+    
+      if (data.total_price !== undefined) {
+        this.bookingPrice = data.total_price;
+      } else if (this.available === false) {
+        this.errorMessage = data.message || 'Erro ao verificar disponibilidade.';
+      } else {
+        this.errors = data.errors || [];
+      }
+    },
+    
+
+    hideForm(roomId){
+      this.showAvailabilityForm = false,
+      this.startDate = '',
+      this.endDate = '',
+      this.numberGuests = '',
+      this.roomId = roomId
+    }
+}});
 
 app.mount('#app');

@@ -14,11 +14,7 @@
       <h1>Pousadaria</h1>      
       <div class="d-flex">
         <input class="search-input form-control mr-4" type="text" v-model="searchText" placeholder="Escreva aqui...">
-        <button class="btn btn-success " type="button" v-on:click="getGuesthouses">Buscar</button>
-      </div>
-
-      <div class="alert alert-danger mt-4" v-if="errorMessage">
-        {{ errorMessage }}
+        <button class="btn btn-success" type="button" v-on:click="getGuesthouses">Buscar</button>
       </div>
     </div>
 
@@ -43,49 +39,51 @@
             <p>E-mail: {{ email }}</p>
             <p>{{ petFriendly }}</p>
             <p>{{ usagePolicy }}</p>
-            <p>{{ address }}</p>
-            <p>{{ neighbourhood }}</p>
-            <p>{{ city }}</p>
-            <p>{{ state }}</p>
+            <p>{{ address }} - {{ neighbourhood }} {{ city }} - {{ state }}</p>
 
-              <button  type="button" class="btn btn-secondary" v-on:click="getDetails(guesthouse.id)">Ver quartos disponíveis</button>      
-
-            <ul>
-              <li v-for="room in rooms">
-                <h3>{{ room.name }}</h3>
-                <p>{{ room.description }}</p>
-                <p>Valor: {{ room.price }}</p>
-                <p>Área: {{ room.size }} m²</p>
-                <p>Capacidade máxima para {{ room.maxPeople }} pessoas</p>
-               
-            
-
-              <div>
-                <p><strong>Verificar disponibilidade</strong></p>
-
-                <div>
-                  <p>Check-in</p>
-                  <div>
-                    <input type="date" class="form-control col-8" :id="'checkIn-' + room.id">
+            <p> Essa pousada tem {{ rooms.length }} quartos </p>
+            <button type="button" class="btn btn-secondary" v-on:click="RoomsList(rooms)">Ver quartos</button>      
+            <div v-if="showGuesthouseRoomDetails">
+              <ul>
+                <li v-for="room in rooms">
+                  <h3>{{ room.name }}</h3>
+                  <p>{{ room.description }}</p>
+                  <p>Valor: {{ room.price }}</p>
+                  <p>Área: {{ room.size }} m²</p>
+                  <p>Capacidade máxima para {{ room.maxPeople }} pessoas</p>
+                  <button type="button" class="btn btn-secondary" v-on:click="hideForm(room.id)">Verificar disponibilidade</button>   
+                  <div v-if="roomId == room.id">
+                    <label for="startDate" class="form-label">Entrada:</label>
+                    <input type="date" v-model="startDate" class="form-control" id="startDate"> 
+                    <label for="endDate" class="form-label">Saída:</label>
+                    <input type="date" v-model="endDate" class="form-control" id="endDate">
+                    <label for="numberGuests" class="form-label">Número de hóspedes:</label>
+                    <input type="number" v-model="numberGuests" class="form-control" id="numberGuests">
+                    <br><button class="btn btn-success" v-on:click="availability(room.id)">Consultar</button>
                   </div>
-                </div>
-                <div>
-                  <label>Check-out</label>
-                  <div class="col-8">
-                    <input type="date" class="form-control col-8" :id="'checkOut-' + room.id">
-                  </div>
-                </div>
-                <div>
-                  <label>Hóspedes</label>
-                  <div>
-                    <input type="date" class="form-control col-8" :id="'numberGuests-' + room.id">
-                  </div>
-                </div>
-              </div>
+                </li>
+              </ul>
             </div>
-          </li>
-        </ul>
-      </section>
+          </section>
+          <section v-if="showAvailabilityForm">
+            <div v-if="available === true" class="alert alert-success">
+              <p>Período disponível!</p>
+              <p>Valor total: R$ {{ bookingPrice }}</p>
+            </div>
+            <div v-else-if="available === false" class="alert alert-warning">
+              <p>{{ errorMessage }}</p>
+            </div>
+            <div v-else-if="errors.length > 0" class="alert alert-warning">
+              <dl>
+                <dd v-for="error in errors" :key="error">
+                  <p>{{ error }}</p>
+                </dd>
+              </dl>
+            </div>
+          </section>
+          
+          
+
     </main>
   </div>
 
