@@ -10,6 +10,8 @@ Este projeto é uma versão da [Pousadaria](https://github.com/sabinopa/guesthou
 - [x] Exibe informações sobre os quartos disponíveis.
 - [x] Permite aos usuários realizar buscas por pousadas a partir da tela inicial.
 - [x] Permite consultar a disponibilidade de cada quarto.
+- [x] Permite visualizar todas as cidade que possuem pousadas cadastradas e ativas. 
+- [x] Permite visualizar pousadas a partir da cidade desejadas.
 
 ### APIS
 Acesse a documentação de APIS utilizadas no projeto [aqui](https://github.com/sabinopa/guesthouse-app/blob/main/docs/routes.md).
