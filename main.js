@@ -6,6 +6,8 @@ const app = Vue.createApp({
       guesthouses: [],
       guesthouse: {},
       rooms: [],
+      cities: [],
+      city: '',
       showGuesthouseRoomDetails: false,
       showGuesthouseDetails: false,
       showAvailabilityForm: false,
@@ -15,17 +17,19 @@ const app = Vue.createApp({
       numberGuests: '',
       bookingPrice: '',
       available: false,
-      errors: []
+      errors: [],
+      guesthousesList: [],
+      showCityGuesthouses: false
     };
   },
 
   computed: {
     filteredGuesthouses() {
-      if (this.searchText) {
+      if (this.city) {
+        return this.guesthousesList;
+      } else if (this.searchText) {
         return this.guesthouses.filter((guesthouse) => {
-          return guesthouse.brandName
-            .toLowerCase()
-            .includes(this.searchText.toLowerCase());
+          return guesthouse.brandName.toLowerCase().includes(this.searchText.toLowerCase());
         });
       } else {
         return this.guesthouses;
@@ -35,9 +39,11 @@ const app = Vue.createApp({
 
   async mounted() {
     await this.getGuesthouses();
+    await this.getCities();
   },
 
   methods: {
+    
     async getGuesthouses() {
       this.hideDetails();
       this.errorMessage = '';
@@ -67,6 +73,15 @@ const app = Vue.createApp({
         document.querySelector('main').hidden = false;
       } catch (error) {
         this.errorMessage = error.message || 'Erro de conexão ou resposta inválida'; 
+      }
+    },
+    async getCities() {
+      try {
+        let response = await fetch('http://localhost:3000/api/v1/guesthouses/cities');
+        let cities = await response.json();
+        this.cities = cities.map(city => ({ city }));
+      } catch (error) {
+        this.errorMessage = 'Dados indisponíveis';
       }
     },
 
@@ -157,7 +172,6 @@ const app = Vue.createApp({
         this.errors = data.errors || [];
       }
     },
-    
 
     hideForm(roomId){
       this.showAvailabilityForm = false,
@@ -165,7 +179,34 @@ const app = Vue.createApp({
       this.endDate = '',
       this.numberGuests = '',
       this.roomId = roomId
-    }
-}});
+    },
+
+    async getGuesthousesCities(city) {
+      this.hideDetails();
+    
+      try {
+        let response = await fetch(`http://localhost:3000/api/v1/guesthouses/by_city?city=${city}`);
+        let guesthouses_city = await response.json();
+        this.guesthousesList = guesthouses_city.map(item => {
+          return {
+            brandName: item.brand_name,
+            description: item.description,
+            email: item.email,
+            contact: item.contact,
+            city: item.city,
+            id: item.id
+          };
+        });
+        this.city = city;
+      } catch (error) {
+        this.errorMessage = 'Dados indisponíveis';
+      }
+    },
+
+    resetCity() {
+      this.city = '';
+    },
+  }  
+});
 
 app.mount('#app');

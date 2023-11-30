@@ -22,14 +22,25 @@
         <div class="search-message text-center alert alert-warning" v-if="guesthouses.length <= 0 && !errorMessage">
           Nenhuma pousada encontrada!
         </div>
-        <div class="d-flex flex-row justify-content-around mt-5">
-          <div class="card text-center" style="width: 18rem;">
-            <ul class="list-group list-group-flush">
-              <li v-for="guesthouse in guesthouses" class="list-group-item" v-on:click="getDetails(guesthouse.id)">
-                {{ guesthouse.brandName }}
-              </li>
-            </ul>
-          </div>
+        <div class="card text-center" style="width: 18rem;">
+          <h2>Lista de Cidades</h2>
+          <ul class="list-group list-group-flush">
+            <li v-for="city in cities" :key="city.city" class="list-group-item" v-on:click="getGuesthousesCities(city.city)">
+              {{ city.city }}
+            </li>
+          </ul>
+        </div>
+        <div>
+        <button v-if="city" class="btn btn-primary mt-3" @click="resetCity">Ver todas as Pousadas</button>
+      </div>
+        <div class="card text-center" style="width: 18rem;">
+          <h2>Lista de Pousadas</h2>
+          <ul class="list-group list-group-flush">
+            <li v-for="guesthouse in filteredGuesthouses" :key="guesthouse.id" class="list-group-item" v-on:click="getDetails(guesthouse.id)">
+              {{ guesthouse.brandName }}
+            </li>
+          </ul>
+        </div>        
 
           <section v-if="showGuesthouseDetails">
             <h3>{{ brandName }}</h3>
@@ -41,7 +52,25 @@
             <p>{{ address }} - {{ neighbourhood }} {{ city }} - {{ state }}</p>
 
             <p> Essa pousada tem {{ rooms.length }} quartos </p>
-            <button type="button" class="btn btn-secondary" v-on:click="RoomsList(rooms)">Ver quartos</button>      
+            
+            <button type="button" class="btn btn-secondary" v-on:click="RoomsList(rooms)">Ver quartos</button>    
+            <section v-if="showAvailabilityForm">
+              <div v-if="available === true" class="alert alert-success">
+                <p>Período disponível!</p>
+                <p>Valor total: R$ {{ bookingPrice }}</p>
+              </div>
+              <div v-else-if="available === false" class="alert alert-warning">
+                <p>{{ errorMessage }}</p>
+              </div>
+              <div v-else-if="errors.length > 0" class="alert alert-warning">
+                <ul>
+                  <li v-for="error in errors" :key="error">
+                    <p>{{ error }}</p>
+                  </li>
+                </ul>
+              </div>
+            </section>
+
             <div v-if="showGuesthouseRoomDetails">
               <ul>
                 <li v-for="room in rooms">
@@ -60,23 +89,6 @@
                     <input type="number" v-model="numberGuests" class="form-control" id="numberGuests">
                     <br><button class="btn btn-success" v-on:click="availability(room.id)">Consultar</button>
                   </div>
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <section v-if="showAvailabilityForm">
-            <div v-if="available === true" class="alert alert-success">
-              <p>Período disponível!</p>
-              <p>Valor total: R$ {{ bookingPrice }}</p>
-            </div>
-            <div v-else-if="available === false" class="alert alert-warning">
-              <p>{{ errorMessage }}</p>
-            </div>
-            <div v-else-if="errors.length > 0" class="alert alert-warning">
-              <ul>
-                <li v-for="error in errors" :key="error">
-                  <p>{{ error }}</p>
                 </li>
               </ul>
             </div>
